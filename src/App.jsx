@@ -10,7 +10,7 @@ function Sidebar() {
     { path: "/",           label: "Dashboard",         icon: "🏠" },
     { path: "/attendance", label: "Attendance Tracker", icon: "✅" },
     { path: "/students",   label: "Student Profiles",   icon: "👤" },
-    { path: "/lessons",    label: "Lesson Log",         icon: "📒" },
+    { path: "/courses",    label: "Course List",         icon: "📒" },
   ];
 
   return (
@@ -45,7 +45,7 @@ function Header() {
     "/":           "Dashboard",
     "/attendance": "Attendance Tracker",
     "/students":   "Student Profiles",
-    "/lessons":    "Lesson Log",
+    "/courses":    "Course List",
   };
 
   const title = pageTitles[location.pathname] || "EduTrack";
@@ -80,7 +80,7 @@ function Layout() {
             <Route path="/"           element={<Dashboard />} />
             <Route path="/attendance" element={<AttendanceTracker />} />
             <Route path="/students"   element={<StudentProfiles />} />
-            <Route path="/lessons"    element={<LessonLog />} />
+            <Route path="/courses"    element={<CourseList />} />
             {/* 404 fallback */}
             <Route path="*" element={
               <div style={{ textAlign: "center", padding: "4rem" }}>
