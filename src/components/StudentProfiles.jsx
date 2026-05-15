@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"; // Added useEffect
+import { useState, useEffect } from "react";
 import { addStudent, deleteStudent, getStudents } from "../services/api";
 
 function StudentProfiles({ students, setStudents }) {
@@ -7,14 +7,13 @@ function StudentProfiles({ students, setStudents }) {
   const [adm, setAdm] = useState("");
   const [search, setSearch] = useState("");
 
-  // Trigger fetch on load to prevent the "filter is not a function" error
   useEffect(() => {
     refresh();
   }, []);
 
   async function refresh() {
     const data = await getStudents();
-    setStudents(data);
+    setStudents(data || []);
   }
 
   async function handleAdd() {
@@ -29,7 +28,7 @@ function StudentProfiles({ students, setStudents }) {
     await refresh();
   }
 
-  // Safe check: default to empty array if students is null/undefined
+  // Safe check: default to empty array if students is null or undefined
   const filtered = (students || []).filter(s =>
     s.name.toLowerCase().includes(search.toLowerCase())
   );

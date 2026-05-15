@@ -7,7 +7,7 @@ function CourseList() {
   useEffect(() => {
     async function fetchCourses() {
       const data = await getCourses();
-      setCourses(data);
+      setCourses(data || []);
     }
     fetchCourses();
   }, []);
