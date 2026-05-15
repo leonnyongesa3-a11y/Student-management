@@ -1,78 +1,43 @@
-import { useEffect, useState } from "react";
+import { updateStudent, getStudents } from "../services/api";
 
-function AttendanceTracker() {
-  const [students, setStudents] = useState([]);
+function AttendanceTracker({ students, setStudents }) {
 
-  // FETCH DATA FROM db.json
-  useEffect(() => {
-    fetch("http://localhost:3001/students")
-      .then((res) => res.json())
-      .then((data) => setStudents(data))
-      .catch((error) => console.log(error));
-  }, []);
-
-  // TOGGLE ATTENDANCE
-  function toggleAttendance(id) {
-    const updatedStudents = students.map((student) =>
-      student.id === id
-        ? { ...student, present: !student.present }
-        : student
-    );
-
-    setStudents(updatedStudents);
-
-    // OPTIONAL: UPDATE json-server
-    const updatedStudent = updatedStudents.find(
-      (student) => student.id === id
-    );
-
-    fetch(`http://localhost:3001/students/${id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        present: updatedStudent.present,
-      }),
-    });
+  async function refresh() {
+    const data = await getStudents();
+    setStudents(data);
   }
 
-  // COUNT PRESENT STUDENTS
-  const presentCount = students.filter(
-    (student) => student.present
-  ).length;
+  async function toggle(id) {
+    const student = students.find(s => s.id === id);
+
+    await updateStudent(id, {
+      present: !student.present
+    });
+
+    await refresh();
+  }
 
   return (
     <div className="attendance-container">
-      <h1>Attendance Tracker</h1>
 
-      <h3>
-        Present Students: {presentCount} / {students.length}
-      </h3>
+      <h2>Attendance Tracker</h2>
 
-      {students.map((student) => (
-        <div key={student.id} className="student-card">
-          <h2>{student.name}</h2>
+      {students.map(s => (
+        <div key={s.id} className="student-card">
+
+          <h3>{s.name}</h3>
 
           <p>
-            Status:{" "}
-            {student.present
-              ? "Present ✅"
-              : "Absent ❌"}
+            Status: {s.present ? "Present ✅" : "Absent ❌"}
           </p>
 
-          <button
-            onClick={() =>
-              toggleAttendance(student.id)
-            }
-          >
-            Mark{" "}
-            {student.present
-              ? "Absent"
-              : "Present"}
+          <button onClick={() => toggle(s.id)}>
+            Toggle
           </button>
+
         </div>
       ))}
+
     </div>
   );
 }

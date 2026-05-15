@@ -1,81 +1,92 @@
 import { useState } from "react";
+import { addStudent, deleteStudent, getStudents } from "../services/api";
 
-function StudentProfiles({ students, addStudent, deleteStudent }) {
+function StudentProfiles({ students, setStudents }) {
+
   const [name, setName] = useState("");
-  const [search, setSearch] = useState("");
   const [newClass, setClass] = useState("");
   const [adm, setAdm] = useState("");
+  const [search, setSearch] = useState("");
 
-  const filtered = students.filter((student) =>
-    student.name.toLowerCase().includes(search.toLowerCase())
-  );
-
-  function handleAddStudent() {
-    if (name && newClass && adm) {
-      addStudent({ name, class: newClass, adm });
-      setName("");
-      setClass("");
-      setAdm("");
-    }
+  async function refresh() {
+    const data = await getStudents();
+    setStudents(data);
   }
 
-    return (
-        <div className="student-profiles">
-            <h2>Student Profiles</h2>
+  async function handleAdd() {
+    if (!name || !newClass || !adm) return;
 
-            {/* Search Bar */}
-            <input
-              type="text"
-              placeholder="Search students..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="Search-input"
-            />
+    await addStudent({
+      name,
+      class: newClass,
+      adm,
+      present: false
+    });
 
-            {/* Add Student Form */}
-            <div className="add-student">
-              <input
-                type="text"
-                placeholder="Student Name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-              <input
-                type="text"
-                placeholder="Class"
-                value={newClass}
-                onChange={(e) => setClass(e.target.value)}
-              />
-              <input
-                type="text"
-                placeholder="Admission Number"
-                value={adm}
-                onChange={(e) => setAdm(e.target.value)}
-              />
-              <button onClick={handleAddStudent}>Add Student</button>
-            </div>
+    await refresh();
 
-            {/* Student Cards */}
-            <div className="student-cards">
-              {filtered.map((student) => (
-                <div key={student.adm} className="student-card">
-                  <h3>{student.name}</h3>
-                  <p>Class: {student.class}</p>
-                  <p>Admission Number: {student.adm}</p>
-                  <span className={`status ${student.status.toLowerCase()}`}>
-                    {student.status}
-                  </span>
-                    <button 
-                    className='delete-button'
-                    onClick={() => deleteStudent(student.adm)}>
-                      Delete
-                    </button>
-                </div>
-              ))}
-            </div>
-        </div>
-    );
+    setName("");
+    setClass("");
+    setAdm("");
+  }
+
+  async function handleDelete(id) {
+    await deleteStudent(id);
+    await refresh();
+  }
+
+  const filtered = students.filter(s =>
+    s.name.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <div className="student-profiles">
+
+      <h2>Student Profiles</h2>
+
+      <input
+        type="text"
+        placeholder="Search students..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+
+      <div className="add-student">
+
+        <input placeholder="Name" onChange={(e) => setName(e.target.value)} />
+        <input placeholder="Class" onChange={(e) => setClass(e.target.value)} />
+        <input placeholder="Adm" onChange={(e) => setAdm(e.target.value)} />
+
+        <button onClick={handleAdd}>Add Student</button>
+
+      </div>
+
+      <div className="student-cards">
+
+        {filtered.map(s => (
+
+          <div key={s.id} className="student-card">
+
+            <h3>{s.name}</h3>
+            <p>Class: {s.class}</p>
+            <p>Adm: {s.adm}</p>
+
+            <span className={s.present ? "present" : "absent"}>
+              {s.present ? "Present" : "Absent"}
+            </span>
+
+            <button onClick={() => handleDelete(s.id)}>
+              Delete
+            </button>
+
+          </div>
+
+        ))}
+
+      </div>
+
+    </div>
+  );
 }
 
 export default StudentProfiles;
-        

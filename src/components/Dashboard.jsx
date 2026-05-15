@@ -1,28 +1,29 @@
-import "./Dashboard.css";
-
 function Dashboard({ students }) {
-  const totalStudents = students.length;
+  const total = students.length;
+  const present = students.filter(s => s.present).length;
 
   return (
     <div className="dashboard">
-      <h2>Dashboard</h2>
 
       <div className="dashboard-cards">
+
         <div className="dashboard-card">
           <h3>Total Students</h3>
-          <p>{totalStudents}</p>
+          <p>{total}</p>
         </div>
 
         <div className="dashboard-card">
-          <h3>Total Courses</h3>
-          <p>3</p>
+          <h3>Present</h3>
+          <p>{present}</p>
         </div>
 
         <div className="dashboard-card">
-          <h3>Attendance</h3>
-          <p>92%</p>
+          <h3>Absent</h3>
+          <p>{total - present}</p>
         </div>
+
       </div>
+
     </div>
   );
 }

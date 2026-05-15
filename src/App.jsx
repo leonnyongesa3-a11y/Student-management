@@ -1,23 +1,29 @@
 import { BrowserRouter as Router, Routes, Route, NavLink, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import "./App.css";
+
 import Dashboard from "./components/Dashboard";
 import AttendanceTracker from "./components/AttendanceTracker";
 import StudentProfiles from "./components/StudentProfiles";
-import LessonLog from "./components/CourseList";
+import CourseList from "./components/CourseList";
 
-// ── NAVIGATION ──
+import { getStudents } from "./services/api";
+
+/* ─────────────────────────────
+   SIDEBAR
+───────────────────────────── */
 function Sidebar() {
   const navItems = [
-    { path: "/",           label: "Dashboard",         icon: "🏠" },
-    { path: "/attendance", label: "Attendance Tracker", icon: "✅" },
-    { path: "/students",   label: "Student Profiles",   icon: "👤" },
-    { path: "/courses",    label: "Course List",         icon: "📒" },
+    { path: "/", label: "Dashboard", icon: "🏠" },
+    { path: "/attendance", label: "Attendance", icon: "✅" },
+    { path: "/students", label: "Students", icon: "👤" },
+    { path: "/courses", label: "Courses", icon: "📒" },
   ];
 
   return (
     <aside className="sidebar">
-      <div className="sidebar-logo">
-        <span>Edu</span>Track
-      </div>
+      <div className="sidebar-logo">EduTrack</div>
+
       <nav className="sidebar-nav">
         {navItems.map((item) => (
           <NavLink
@@ -25,11 +31,11 @@ function Sidebar() {
             to={item.path}
             end={item.path === "/"}
             className={({ isActive }) =>
-              `nav-item ${isActive ? "nav-item--active" : ""}`
+              isActive ? "nav-item nav-item--active" : "nav-item"
             }
           >
-            <span className="nav-icon">{item.icon}</span>
-            <span className="nav-label">{item.label}</span>
+            <span>{item.icon}</span>
+            <span>{item.label}</span>
           </NavLink>
         ))}
       </nav>
@@ -37,69 +43,107 @@ function Sidebar() {
   );
 }
 
-// ── HEADER ──
+/* ─────────────────────────────
+   HEADER
+───────────────────────────── */
 function Header() {
   const location = useLocation();
 
-  const pageTitles = {
-    "/":           "Dashboard",
+  const titles = {
+    "/": "Dashboard",
     "/attendance": "Attendance Tracker",
-    "/students":   "Student Profiles",
-    "/courses":    "Course List",
+    "/students": "Student Profiles",
+    "/courses": "Course List",
   };
-
-  const title = pageTitles[location.pathname] || "EduTrack";
 
   return (
     <header className="header">
-      <h1 className="header-title">{title}</h1>
-      <div className="header-right">
-        <span className="header-date">
-          {new Date().toLocaleDateString("en-US", {
-            weekday: "long",
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          })}
-        </span>
-        <div className="header-avatar">T</div>
+      <h1>{titles[location.pathname] || "EduTrack"}</h1>
+
+      <div className="header-date">
+        {new Date().toDateString()}
       </div>
     </header>
   );
 }
 
-// ── LAYOUT ──
-function Layout() {
+/* ─────────────────────────────
+   LAYOUT
+───────────────────────────── */
+function Layout({ students, setStudents }) {
   return (
     <div className="app-layout">
+
       <Sidebar />
+
       <div className="main-wrapper">
+
         <Header />
+
         <main className="main-content">
+
           <Routes>
-            <Route path="/"           element={<Dashboard />} />
-            <Route path="/attendance" element={<AttendanceTracker />} />
-            <Route path="/students"   element={<StudentProfiles />} />
-            <Route path="/courses"    element={<CourseList />} />
-            {/* 404 fallback */}
-            <Route path="*" element={
-              <div style={{ textAlign: "center", padding: "4rem" }}>
-                <h2>404 — Page Not Found</h2>
-                <NavLink to="/">Go back home</NavLink>
-              </div>
-            } />
+
+            <Route
+              path="/"
+              element={<Dashboard students={students} />}
+            />
+
+            <Route
+              path="/attendance"
+              element={
+                <AttendanceTracker
+                  students={students}
+                  setStudents={setStudents}
+                />
+              }
+            />
+
+            <Route
+              path="/students"
+              element={
+                <StudentProfiles
+                  students={students}
+                  setStudents={setStudents}
+                />
+              }
+            />
+
+            <Route
+              path="/courses"
+              element={<CourseList />}
+            />
+
           </Routes>
+
         </main>
+
       </div>
     </div>
   );
 }
 
-// ── APP ROOT ──
+/* ─────────────────────────────
+   APP ROOT (DB CONTROL)
+───────────────────────────── */
 function App() {
+  const [students, setStudents] = useState([]);
+
+  async function loadStudents() {
+    const data = await getStudents();
+    setStudents(data);
+  }
+
+  useEffect(() => {
+    loadStudents();
+  }, []);
+
   return (
     <Router>
-      <Layout />
+      <Layout
+        students={students}
+        setStudents={setStudents}
+      />
     </Router>
   );
 }
