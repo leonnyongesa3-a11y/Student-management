@@ -1,6 +1,4 @@
-import { db } from "./firebaseConfig"; 
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "firebase/firestore";
-
 const studentCollection = collection(db, "students");
 
 export async function getStudents() {

@@ -115,14 +115,17 @@ function Layout({ students, setStudents }) {
             />
 
           </Routes>
+          <AttendanceTracker/>
+
 
         </main>
+
 
       </div>
     </div>
   );
 }
-
+//update all async methods to fetch from db.json--- o9i.
 /* ─────────────────────────────
    APP ROOT (DB CONTROL)
 ───────────────────────────── */
