@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route, NavLink, useLocation } from "re
 import Dashboard from "./components/Dashboard";
 import AttendanceTracker from "./components/AttendanceTracker";
 import StudentProfiles from "./components/StudentProfiles";
-import LessonLog from "./components/LessonLog";
+import LessonLog from "./components/CourseList";
 
 // ── NAVIGATION ──
 function Sidebar() {
