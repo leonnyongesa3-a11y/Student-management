@@ -7,10 +7,10 @@ function StudentProfiles({ students, setStudents }) {
   const [adm, setAdm] = useState("");
   const [search, setSearch] = useState("");
 
-  // Fetch students from Firebase on component mount
+  // Trigger fetch on load to prevent the "filter is not a function" error
   useEffect(() => {
     refresh();
-  }, []); // Empty dependency array means this runs once
+  }, []);
 
   async function refresh() {
     const data = await getStudents();
@@ -19,20 +19,9 @@ function StudentProfiles({ students, setStudents }) {
 
   async function handleAdd() {
     if (!name || !newClass || !adm) return;
-
-    await addStudent({
-      name,
-      class: newClass,
-      adm,
-      present: false
-    });
-
+    await addStudent({ name, class: newClass, adm, present: false });
     await refresh();
-
-    // Clear inputs
-    setName("");
-    setClass("");
-    setAdm("");
+    setName(""); setClass(""); setAdm("");
   }
 
   async function handleDelete(id) {
@@ -40,41 +29,24 @@ function StudentProfiles({ students, setStudents }) {
     await refresh();
   }
 
-  const filtered = students.filter(s =>
+  // Safe check: default to empty array if students is null/undefined
+  const filtered = (students || []).filter(s =>
     s.name.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
     <div className="student-profiles">
       <h2>Student Profiles</h2>
-
-      <input
-        type="text"
-        placeholder="Search students..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
+      <input 
+        type="text" placeholder="Search..." value={search} 
+        onChange={(e) => setSearch(e.target.value)} 
       />
-
       <div className="add-student">
-        {/* Controlled inputs using 'value' attribute */}
-        <input 
-          placeholder="Name" 
-          value={name} 
-          onChange={(e) => setName(e.target.value)} 
-        />
-        <input 
-          placeholder="Class" 
-          value={newClass} 
-          onChange={(e) => setClass(e.target.value)} 
-        />
-        <input 
-          placeholder="Adm" 
-          value={adm} 
-          onChange={(e) => setAdm(e.target.value)} 
-        />
+        <input value={name} placeholder="Name" onChange={(e) => setName(e.target.value)} />
+        <input value={newClass} placeholder="Class" onChange={(e) => setClass(e.target.value)} />
+        <input value={adm} placeholder="Adm" onChange={(e) => setAdm(e.target.value)} />
         <button onClick={handleAdd}>Add Student</button>
       </div>
-
       <div className="student-cards">
         {filtered.map(s => (
           <div key={s.id} className="student-card">
