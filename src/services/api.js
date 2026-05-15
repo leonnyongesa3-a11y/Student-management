@@ -1,36 +1,41 @@
-const BASE_URL = "http://localhost:3001/students";
+import { db } from "./firebaseConfig"; // Ensure you have initialized Firebase in this file
+import { 
+  collection, 
+  getDocs, 
+  addDoc, 
+  updateDoc, 
+  deleteDoc, 
+  doc 
+} from "firebase/firestore";
 
-// GET
+const studentCollection = collection(db, "students");
+
+// GET: Fetches all documents from the "students" collection
 export async function getStudents() {
-  const res = await fetch(BASE_URL);
-  return res.json();
+  const snapshot = await getDocs(studentCollection);
+  // Firestore data doesn't include the ID inside the data object by default, 
+  // so we map it here to match your component's needs.
+  return snapshot.docs.map(doc => ({
+    ...doc.data(),
+    id: doc.id
+  }));
 }
 
-// POST
+// POST: Adds a new student document
 export async function addStudent(student) {
-  const res = await fetch(BASE_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(student),
-  });
-
-  return res.json();
+  const docRef = await addDoc(studentCollection, student);
+  return { ...student, id: docRef.id };
 }
 
-// PATCH
+// PATCH: Updates specific fields of a student document
 export async function updateStudent(id, data) {
-  const res = await fetch(`${BASE_URL}/${id}`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-
-  return res.json();
+  const studentDoc = doc(db, "students", id);
+  await updateDoc(studentDoc, data);
+  return { id, ...data };
 }
 
-// DELETE
+// DELETE: Removes a student document by its ID
 export async function deleteStudent(id) {
-  await fetch(`${BASE_URL}/${id}`, {
-    method: "DELETE",
-  });
+  const studentDoc = doc(db, "students", id);
+  await deleteDoc(studentDoc);
 }
